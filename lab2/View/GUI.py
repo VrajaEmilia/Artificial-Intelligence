@@ -47,15 +47,16 @@ class GUI:
             screen.blit(self.__cntrl.getDrone().mapWithDrone(self.__cntrl.getMap().image()), (0, 0))
             pygame.display.flip()
         start = time.time()
-        path = self.__cntrl.searchGreedy(x, y, finalX, finalY)
+        #path = self.__cntrl.searchAStar(x, y, finalX,finalY)
+        path = self.__cntrl.searchGreedy(5,7,7,11)
+        print(path)
         end = time.time()
-        print("path from (", x, y, ") to (", finalX, finalY, ") :")
-        if path:
-            print(path)
-        else:
+        print("(",x,y,") -> (",finalX,finalY,")")
+        if path==None:
+            path =[]
             print("NO PATH")
-        print("exec time:", end - start)
         screen.blit(self.__cntrl.displayWithPath(self.__cntrl.getMap().image(RED), path), (0, 0))
         pygame.display.flip()
-        time.sleep(10)
+        print("exec time:", end - start)
+        time.sleep(5)
         pygame.quit()

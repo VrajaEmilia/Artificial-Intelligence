@@ -14,26 +14,68 @@ class Controller:
         return self.__map
 
     @staticmethod
-    def heuristicF(x1, x2, y1, y2):
+    def ManhattanDist(x1, x2, y1, y2):
         return abs(x1 - x2) + abs(y1 - y2)
 
-    def searchAStar(self,mapM, droneD, initialX, initialY, finalX, finalY):
-        # TODO
-        # implement the search function and put it in controller
-        # returns a list of moves as a list of pairs [x,y]
 
-        pass
+    def searchAStar(self,initialX, initialY, finalX, finalY):
+        # TODO
+        #implement the search function and put it in controller
+        #returns a list of moves as a list of pairs [x,y]
+
+        if not self.__drone.isValid(self.__map,finalX,finalY):
+            return None
+
+        found = False
+        visited = []
+        prev = {}
+        prev[(initialX,initialY)] =(None,None)
+        toVisit = [(initialX,initialY)]
+        steps = {}
+        steps[(initialX, initialY)] = 0
+
+        while len(toVisit)!=0 and not found:
+            (x,y) = toVisit.pop(0)
+            visited.append((x,y))
+            if (x,y) == (finalX,finalY):
+                found = True
+            else:
+                aux = []
+                for d in directions:
+                    nextX = x + d[0]
+                    nextY = y + d[1]
+                    if self.__drone.isValid(self.__map, nextX, nextY) and (nextX, nextY) not in visited:
+                        if (nextX,nextY) not in toVisit:
+                            aux.append((nextX, nextY))
+                            prev[(nextX, nextY)] = (x, y)
+                            steps[(nextX, nextY)]= steps[(x, y)] + 1
+                        else:
+                            if steps[(nextX, nextY)] > steps[(x,y)] + 1:
+                                toVisit.remove((nextX, nextY))
+                                aux.append((nextX, nextY))
+                                prev[(nextX, nextY)] = (x, y)
+                                steps[(nextX, nextY)] = steps[(x, y)] + 1
+
+                toVisit = toVisit+aux
+                toVisit.sort(key=lambda coord: self.ManhattanDist(coord[0], coord[1], finalX, finalY)+steps[coord])
+        if found:
+            return self.path(prev, finalX, finalY)
+        else:
+            return None
 
     def searchGreedy(self,initialX, initialY, finalX, finalY):
         # TODO
         # implement the search function and put it in controller
         # returns a list of moves as a list of pairs [x,y]
+        if not self.__drone.isValid(self.__map,finalX,finalY):
+            return None
+
         found = False
         visited = []
         prev = {}
         prev[(initialX, initialY)] = (None, None)
         toVisit = [(initialX, initialY)]
-        while toVisit and not found:
+        while len(toVisit)!=0 and not found:
             (x, y) = toVisit.pop(0)
             visited.append((x, y))
             if (x, y) == (finalX, finalY):
@@ -41,13 +83,14 @@ class Controller:
             else:
                 aux = []
                 for d in directions:
-                    if self.__drone.isValid(self.__map, x + d[0], y + d[1]) and (x + d[0], y + d[1]) not in visited:
-                        aux.append((x + d[0], y + d[1]))
-                        prev[(x + d[0], y + d[1])] = (x, y)
+                    nextX = x + d[0]
+                    nextY = y + d[1]
+                    if self.__drone.isValid(self.__map, nextX,nextY) and (nextX, nextY) not in visited:
+                        aux.append((nextX, nextY))
+                        prev[(nextX, nextY)] = (x, y)
                 toVisit.extend(aux)
-                # toVisit.sort(lambda coord: heuristicF(coord[0], coord[1], finalX, finalY))
-                # toVisit = sorted(toVisit, lambda coord: heuristicF(coord[0],coord[1],finalX,finalY))
-                toVisit.sort(key=lambda coord: self.heuristicF(coord[0], coord[1], finalX, finalY))
+                toVisit.sort(key=lambda coord: self.ManhattanDist(coord[0], coord[1], finalX, finalY))
+                #print(toVisit)
         if found:
             return self.path(prev, finalX, finalY)
         else:
