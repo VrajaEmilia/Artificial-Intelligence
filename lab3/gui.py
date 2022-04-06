@@ -8,7 +8,7 @@ from domain import *
 def initPyGame(dimension):
     # init the pygame
     pygame.init()
-    logo = pygame.image.load("logo32x32.png")
+    logo = pygame.image.load("resources/logo32x32.png")
     pygame.display.set_icon(logo)
     pygame.display.set_caption("drone exploration with AE")
     
@@ -37,7 +37,7 @@ def movingDrone(currentMap, path, speed = 1,  markSeen = True):
     
     screen = initPyGame((currentMap.n * 20, currentMap.m * 20))
 
-    drona = pygame.image.load("drona.png")
+    drona = pygame.image.load("resources/drona.png")
         
     for i in range(len(path)):
         screen.blit(image(currentMap), (0,0))
@@ -74,4 +74,21 @@ def image(currentMap, colour = BLUE, background = WHITE):
                 imagine.blit(brick, ( j * 20, i * 20))
                 
     return imagine        
-    
+
+def visualiseMap(map):
+    # initialize the pygame module
+    pygame.init()
+    # load and set the logo
+    logo = pygame.image.load("resources/logo32x32.png")
+    pygame.display.set_icon(logo)
+    pygame.display.set_caption("Visualise map")
+
+
+    # create a surface on screen that has the size of 800 x 480
+    screen = pygame.display.set_mode((400, 400))
+    screen.fill(WHITE)
+    screen.blit(image(map), (0, 0))
+
+    screen.blit(image(map), (0, 0))
+    pygame.display.flip()
+    closePyGame()

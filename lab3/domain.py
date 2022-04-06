@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import pickle
 from random import *
 from utils import *
 import numpy as np
@@ -40,7 +40,7 @@ class Individual:
 class Population():
     def __init__(self, populationSize = 0, individualSize = 0):
         self.__populationSize = populationSize
-        self.__v = [domain.Individual(individualSize) for x in range(populationSize)]
+        self.__v = [Individual(individualSize) for x in range(populationSize)]
         
     def evaluate(self):
         # evaluates the population
@@ -64,7 +64,20 @@ class Map():
             for j in range(self.m):
                 if random() <= fill :
                     self.surface[i][j] = 1
-                
+
+    def loadMap(self, numfile):
+        with open(numfile, "rb") as f:
+            dummy = pickle.load(f)
+            self.n = dummy.n
+            self.m = dummy.m
+            self.surface = dummy.surface
+            f.close()
+
+    def saveMap(self,file):
+        with open(file,"wb") as f:
+            pickle.dump(self,f)
+            f.close()
+
     def __str__(self):
         string=""
         for i in range(self.n):
