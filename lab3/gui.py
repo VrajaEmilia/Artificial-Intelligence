@@ -34,7 +34,6 @@ def closePyGame():
 
 def movingDrone(currentMap, path, speed = 1,  markSeen = True):
     # animation of a drone on a path
-    
     screen = initPyGame((currentMap.n * 20, currentMap.m * 20))
 
     drona = pygame.image.load("resources/drona.png")
@@ -58,7 +57,7 @@ def movingDrone(currentMap, path, speed = 1,  markSeen = True):
         
         screen.blit(drona, (path[i][1] * 20, path[i][0] * 20))
         pygame.display.flip()
-        time.sleep(0.5 * speed)            
+        time.sleep(2)
     closePyGame()
         
 def image(currentMap, colour = BLUE, background = WHITE):

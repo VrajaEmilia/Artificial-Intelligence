@@ -13,17 +13,23 @@ class gene:
         self.dir = v[randint(0, 3)]
 
     def get_coord(self, x, y):
-        return x + v[self.dir][0], y + v[self.dir][1]
+        return x + self.dir[0], y + self.dir[1]
 
 
 class Individual:
-    def __init__(self, drone, map, size=0):
+    def __init__(self, map, size=0):
         self.__size = size
         self.__x = [gene() for i in range(self.__size)]
         self.__f = None
-        self.__drone = drone
+        self.__drone = Drone()
         self.__visited = []
         self.__map = map
+
+    def getGenome(self):
+        return self.__x
+
+    def setGenome(self,x):
+        self.__x = x
 
     def readUDMSensors(self, x, y):
         sum = 0
@@ -33,28 +39,28 @@ class Individual:
             if (xaux, y) not in self.__visited:
                 self.__visited.append((xaux, y))
                 sum += 1
-                xaux += 1
+            xaux += 1
         # RIGHT
         yaux = y + 1
         while self.__map.isValid(x, yaux):
             if (x, yaux) not in self.__visited:
                 self.__visited.append((x, yaux))
                 sum += 1
-                yaux += 1
+            yaux += 1
         # UP
         xaux = x - 1
         while self.__map.isValid(xaux, y):
             if (xaux, y) not in self.__visited:
                 self.__visited.append((xaux, y))
                 sum += 1
-                xaux -= 1
+            xaux -= 1
         # LEFT
         yaux = y - 1
         while self.__map.isValid(x, yaux):
             if (x, yaux) not in self.__visited:
                 self.__visited.append((x, yaux))
                 sum += 1
-                yaux -= 1
+            yaux -= 1
 
         return sum
 
@@ -80,21 +86,21 @@ class Individual:
             self.__x[index] = gene()
 
     def crossover(self, otherParent, crossoverProbability=0.8):
-        offspring1, offspring2 = Individual(self.__drone, self.__map, self.__size), Individual(self.__drone, self.__map,
+        offspring1, offspring2 = Individual(self.__map, self.__size), Individual(self.__map,
                                                                                                self.__size)
         if random() < crossoverProbability:
             index = randint(0, self.__size - 1)
-            offspring1.__x = self.__x[:index] + otherParent.__x[index:]
-            offspring2.__x = otherParent.__x[:index] + self.__x[index:]
+            offspring1.setGenome(self.__x[:index] + otherParent.getGenome()[index:])
+            offspring2.setGenome(otherParent.getGenome()[:index] + self.__x[index:])
         return offspring1, offspring2
 
     def getFitness(self):
         return self.__f
 
 class Population():
-    def __init__(self, drone, map, populationSize=0, individualSize=0):
+    def __init__(self,map, populationSize=0, individualSize=0):
         self.__populationSize = populationSize
-        self.__v = [Individual(map, drone, individualSize) for x in range(populationSize)]
+        self.__v = [Individual(map, individualSize) for x in range(populationSize)]
 
     def evaluate(self):
         # evaluates the population
@@ -106,6 +112,21 @@ class Population():
         # and returns that selection
         return sorted(self.__v,key = lambda x: x.getFitness(),reverse=True)[:k]
 
+    def getSize(self):
+        return self.__populationSize
+
+    def getIndividuals(self):
+        return self.__v
+
+    def addIndividual(self,individual):
+        self.__v.append(individual)
+        self.__populationSize+=1
+
+    def getListOfFitness(self):
+        fitness = []
+        for individual in self.__v:
+            fitness.append(individual.getFitness())
+        return fitness
 
 class Map():
     def __init__(self, n=20, m=20):
@@ -114,6 +135,7 @@ class Map():
         self.surface = np.zeros((self.n, self.m))
 
     def randomMap(self, fill=0.2):
+        self.surface = np.zeros((self.n, self.m))
         for i in range(self.n):
             for j in range(self.m):
                 if random() <= fill:
@@ -145,7 +167,7 @@ class Map():
 
 
 class Drone:
-    def __init__(self, x, y, battery):
+    def __init__(self, x=3, y=3, battery=5):
         self.__x = x
         self.__y = y
         self.__battery = battery
