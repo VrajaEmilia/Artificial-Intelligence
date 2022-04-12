@@ -20,3 +20,4 @@ v = [[-1, 0], [1, 0], [0, 1], [0, -1]]
 #define mapsize 
 
 mapLengh = 20
+penalizare = 10
